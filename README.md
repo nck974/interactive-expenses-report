@@ -1,4 +1,6 @@
 [![Pylint](https://github.com/nck974/interactive-expenses-report/actions/workflows/pylint.yml/badge.svg?branch=main)](https://github.com/nck974/interactive-expenses-report/actions/workflows/pylint.yml)
+[![CodeQL](https://github.com/nck974/interactive-expenses-report/actions/workflows/codeql-analysis.yml/badge.svg?branch=main)](https://github.com/nck974/interactive-expenses-report/actions/workflows/codeql-analysis.yml)
+
 # Interactive Expenses Report
 
 Create an HTML report of your expenses from a set of expenses/income stored in a CSV file. The expected structure is the default export of the app [`Mobills`](https://www.mobillsapp.com/). Although the app is good at tracking expenses as it can be done quickly at any time, I don't like the data visualization or is not helpful enough.
