@@ -14,10 +14,11 @@ def generate_report(graphs_overview, graphs_category_details, year_expenses):
     The report will be generated in the folder provided in the settings file which shall be placed
     inside the project
     """
-    root = os.path.dirname(os.path.abspath(__file__))
+    root = os.path.join(os.path.dirname(os.path.abspath(__file__)), '..')
 
     # Get template
     templates_dir = os.path.join(root, 'templates')
+    print(templates_dir)
     env = Environment( loader = FileSystemLoader(templates_dir) )
     template = env.get_template('report.html')
 
