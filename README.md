@@ -14,11 +14,12 @@ This project aims to create some graphs from that data which can give you a bett
 ## Data structure
 
 The expected input has to be stored as a `.csv` file inside the `input folder` with the following format:
-    ```csv
-    "Date";"Description";"Value";"Account";"Category";"Subcategory";"Tags"
-    "dd/mm/yyyy";"My expense name";"-xxx.xx";"Wallet";"category name";"subcategory name";" (currently not used)"
-    "dd/mm/yyyy";"My income name";"xxx.xx";"Wallet";"category name";"subcategory name";" (currently not used)"
-    ```
+```shell
+"Date";"Description";"Value";"Account";"Category";"Subcategory";"Tags"
+"dd/mm/yyyy";"My expense name";"-xxx.xx";"Wallet";"category name";"subcategory name";" (currently not used)"
+"dd/mm/yyyy";"My income name";"xxx.xx";"Wallet";"category name";"subcategory name";" (currently not used)"
+```
+
 Note that the differentiation between of incomes and expenses is only done by the sign of the value. `Date`, `value`, `description`, and `category` are mandatory fields.
 
 ## Prerequisites
