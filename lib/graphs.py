@@ -7,6 +7,8 @@ import plotly.graph_objects as go
 from lib.transaction import Transaction
 
 from lib.stats import (
+    get_category_average_expenses,
+    get_expenses_years,
     get_income_expenses_balance,
     get_inc_exp_balance_percent,
     get_metric_average,
@@ -292,6 +294,37 @@ class CategoriesOverviewBars(GraphTemplate):
         self.fig.update_yaxes(showticksuffix='all', ticksuffix="€")
 
 
+class AverageExpensesYearBars(GraphTemplate):
+    """
+    Plot the average expenses by category per year
+    """
+
+    def __init__(self, transactions: list[Transaction]):
+        super().__init__(transactions)
+        self.timeline = get_expenses_years(transactions)
+        self.__create_plot()
+
+    def __create_plot(self):
+        """
+        Create a plot with all average expenses per category
+        """
+        expenses = get_category_average_expenses(self.transactions)
+
+        for category, category_expenses in expenses.items():
+            self.fig.add_trace(
+                go.Bar(
+                    name=category,
+                    x=self.timeline,
+                    y=list(category_expenses.values())
+                )
+          )
+
+        self.fig.update_layout(barmode='stack')
+
+        # Axis
+        self.fig.update_yaxes(showticksuffix='all', ticksuffix="€")
+
+
 class CategoryDetails(GraphTemplate):
     """
     Plot the expenses of a category in a bar graph as the sum of all subcategories
@@ -346,6 +379,7 @@ def get_overview_graphs(transactions: list[Transaction]) -> dict[str:str]:
         'Relative Balance': IncomeExpensesRelativeBalance,
         'Categories Overview Area': CategoriesOverviewArea,
         'Categories Overview Bars': CategoriesOverviewBars,
+        'Categories Average expenses': AverageExpensesYearBars,
     }
     overview_graphs = []
     for name, graph in graph_list.items():

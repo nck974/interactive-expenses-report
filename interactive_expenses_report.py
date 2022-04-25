@@ -8,7 +8,7 @@ import re
 
 from lib.graphs import get_overview_graphs, get_all_categories_detailed_bar_graphs
 from lib.html_report import generate_report
-from lib.stats import get_year_exp_by_cat_with_subcat
+from lib.stats import get_year_expenses_by_category_with_subcategory
 from lib.transaction import Transaction
 
 from settings import INPUT_DIR
@@ -78,7 +78,7 @@ def main():
 
     overview_graphs = get_overview_graphs(transactions)
     category_details_graphs=get_all_categories_detailed_bar_graphs(transactions)
-    year_expenses = get_year_exp_by_cat_with_subcat(transactions)
+    year_expenses = get_year_expenses_by_category_with_subcategory(transactions)
 
     generate_report(
         graphs_overview=overview_graphs,
