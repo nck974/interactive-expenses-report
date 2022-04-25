@@ -387,14 +387,22 @@ def get_category_average_expenses(transactions):
     Return a dict with the average transactions per year
     """
     expenses = get_avg_category_expense_per_month_in_year(transactions)
-
+    years = get_expenses_years(transactions)
+    
     avg_expenses = {}
     for category, category_expenses in expenses.items():
+        
+        # Fill empty years
+        for year in years:
+            if year not in category_expenses['year']:
+                category_expenses['year'][year] = 0
+
         avg_expenses[category] = OrderedDict(
-            sorted(category_expenses['year'].items(), key=lambda x: x[1], reverse=False)
+            sorted(category_expenses['year'].items(), reverse=False)
         )
 
     avg_expenses = OrderedDict(
         sorted(avg_expenses.items(), key=lambda x: sum(x[1].values()), reverse=True)
         )
+
     return avg_expenses
