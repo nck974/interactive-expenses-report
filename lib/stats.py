@@ -7,23 +7,38 @@ import datetime
 from lib.transaction import Transaction
 
 
-def get_timeline(transactions: list[Transaction]) -> list[str]:
+def _get_min_date(transactions: list[Transaction]):
     """
-    Return a list of strings for each month of each year available in the transactions
+    Return the date of the oldest transaction
     """
     min_date: datetime = None
-    max_date: datetime = None
     for transaction in transactions:
         if min_date is None:
             min_date = transaction.date
         else:
             if min_date > transaction.date:
                 min_date = transaction.date
+    return min_date
+
+def _get_max_date(transactions: list[Transaction]):
+    """
+    Return the date of the oldest transaction
+    """
+    max_date: datetime = None
+    for transaction in transactions:
         if max_date is None:
             max_date = transaction.date
         else:
             if max_date < transaction.date:
                 max_date = transaction.date
+    return max_date
+
+def get_timeline(transactions: list[Transaction]) -> list[str]:
+    """
+    Return a list of strings for each month of each year available in the transactions
+    """
+    min_date: datetime = _get_min_date(transactions)
+    max_date: datetime = _get_max_date(transactions)
 
     timeline = []
     for year in range(min_date.year, max_date.year+1):
@@ -233,17 +248,21 @@ def get_month_exp_by_category_with_subcategories(transactions: list[Transaction]
         for subcategory, subcategory_expenses in category_expenses.items():
             for date in timeline:
                 if not date in subcategory_expenses:
-                    subcategory_expenses[date] = 0
+                    expenses[category][subcategory][date] = 0
 
 
     for category, category_expenses in expenses.items():
         for subcategory, subcategory_expenses in category_expenses.items():
-            subcategory_expenses = dict(sorted(subcategory_expenses.items()))
+            expenses[category][subcategory] = dict(sorted(subcategory_expenses.items()))
 
+        # Sort from more expenses to less the categories
+        expenses[category] = OrderedDict(
+            sorted(expenses[category].items(), key=lambda x: sum(x[1].values()), reverse=True)
+        )
     return expenses
 
 
-def get_year_exp_by_cat_with_subcat(transactions: list[Transaction]):
+def get_year_expenses_by_category_with_subcategory(transactions: list[Transaction]):
     """
     Return a dict with the sum of all expenses for each categories and at the same time the same
     information for each subcategory.
@@ -301,7 +320,7 @@ def get_year_exp_by_cat_with_subcat(transactions: list[Transaction]):
 
 
         if subcategory is None or subcategory == '':
-            continue
+            subcategory = 'No subcategory'
 
         if not subcategory in expenses['categories'][category]['subcategories']:
             expenses['categories'][category]['subcategories'][subcategory] = {}
@@ -318,3 +337,90 @@ def get_year_exp_by_cat_with_subcat(transactions: list[Transaction]):
                 expenses['categories'][category]['subcategories'][subcategory]['year'][date]
 
     return expenses
+
+
+def _get_number_of_months_with_transactions_in_year(transactions, year):
+    """"
+    Return the number of months with transactions by checking the last month and the first one
+    """
+    min_date: datetime = _get_min_date(transactions)
+    max_date: datetime = _get_max_date(transactions)
+
+    if year == min_date.year:
+        return 13 - int(min_date.month)
+    if year == max_date.year:
+        return int(max_date.month)
+
+    return 12
+
+
+def get_expenses_years(transactions) ->list:
+    """
+    Return the years where there are transactions
+    """
+    min_date: datetime = _get_min_date(transactions)
+    max_date: datetime = _get_max_date(transactions)
+
+    return list(range(min_date.year, max_date.year+1, 1))
+
+
+def get_avg_category_expense_per_month_in_year(transactions):
+    """
+    Return the average expenses per category and subcategory per year
+    """
+    year_expenses = get_year_expenses_by_category_with_subcategory(transactions)['categories']
+    years = get_expenses_years(transactions)
+
+    avg_expenses = {}
+    for category, cat_expenses in year_expenses.items():
+        avg_expenses[category] = {'year': {}, 'subcategories': {}} # Initialize
+
+        if not 'year' in cat_expenses:
+            cat_expenses['year'] = {}
+
+
+        for year in years:
+            if year in cat_expenses['year']:
+                avg_expenses[category]['year'][year] = cat_expenses['year'][year] / \
+                    _get_number_of_months_with_transactions_in_year(transactions, year)
+            else:
+                avg_expenses[category]['year'][year] = 0
+
+        for subcategory, subcat_expenses in cat_expenses['subcategories'].items():
+            avg_expenses[category]['subcategories'][subcategory] = {'year': {}}
+
+            for subyear in years:
+                if subyear in subcat_expenses['year']:
+                    avg_expenses[category]['subcategories'][subcategory]['year'][subyear] = \
+                        subcat_expenses['year'][subyear] / \
+                        _get_number_of_months_with_transactions_in_year(transactions, subyear)
+                else:
+                    avg_expenses[category]['subcategories'][subcategory]['year'][subyear] = 0
+
+    return avg_expenses
+
+
+def get_category_average_expenses(transactions):
+    """
+    Return a dict with the average transactions per year
+    """
+    expenses = get_avg_category_expense_per_month_in_year(transactions)
+    years = get_expenses_years(transactions)
+
+    avg_expenses = {}
+    for category, category_expenses in expenses.items():
+
+        # Fill empty years
+        for year in years:
+            if year not in category_expenses['year']:
+                category_expenses['year'][year] = 0
+
+        avg_expenses[category] = OrderedDict(
+            sorted(category_expenses['year'].items(), reverse=False)
+        )
+
+    avg_expenses = OrderedDict(
+        sorted(avg_expenses.items(), key=lambda x: sum(x[1].values()), reverse=True)
+        )
+
+    return avg_expenses

@@ -8,7 +8,7 @@ from jinja2 import Environment, FileSystemLoader
 
 from settings import CURRENCY, OUTPUT_DIR, TITLE
 
-def generate_report(graphs_overview, graphs_category_details, year_expenses):
+def generate_report(graphs_overview, graphs_category_details, graphs_category_avg, year_expenses):
     """
     Generate a report using jinja with the values provided from other report.add()
     The report will be generated in the folder provided in the settings file which shall be placed
@@ -18,7 +18,6 @@ def generate_report(graphs_overview, graphs_category_details, year_expenses):
 
     # Get template
     templates_dir = os.path.join(root, 'templates')
-    print(templates_dir)
     env = Environment( loader = FileSystemLoader(templates_dir) )
     template = env.get_template('report.html')
 
@@ -31,6 +30,7 @@ def generate_report(graphs_overview, graphs_category_details, year_expenses):
                 title=TITLE,
                 graphs_overview=graphs_overview,
                 graphs_category_details=graphs_category_details,
+                graphs_category_avg=graphs_category_avg,
                 year_expenses=year_expenses,
                 currency=CURRENCY
             )

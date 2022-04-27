@@ -7,6 +7,9 @@ import plotly.graph_objects as go
 from lib.transaction import Transaction
 
 from lib.stats import (
+    get_avg_category_expense_per_month_in_year,
+    get_category_average_expenses,
+    get_expenses_years,
     get_income_expenses_balance,
     get_inc_exp_balance_percent,
     get_metric_average,
@@ -292,6 +295,37 @@ class CategoriesOverviewBars(GraphTemplate):
         self.fig.update_yaxes(showticksuffix='all', ticksuffix="€")
 
 
+class AverageExpensesYearBars(GraphTemplate):
+    """
+    Plot the average expenses by category per year
+    """
+
+    def __init__(self, transactions: list[Transaction]):
+        super().__init__(transactions)
+        self.timeline = get_expenses_years(transactions)
+        self.__create_plot()
+
+    def __create_plot(self):
+        """
+        Create a plot with all average expenses per category
+        """
+        expenses = get_category_average_expenses(self.transactions)
+
+        for category, category_expenses in expenses.items():
+            self.fig.add_trace(
+                go.Bar(
+                    name=category,
+                    x=self.timeline,
+                    y=list(category_expenses.values())
+                )
+          )
+
+        self.fig.update_layout(barmode='stack')
+
+        # Axis
+        self.fig.update_yaxes(showticksuffix='all', ticksuffix="€")
+
+
 class CategoryDetails(GraphTemplate):
     """
     Plot the expenses of a category in a bar graph as the sum of all subcategories
@@ -335,6 +369,48 @@ class CategoryDetails(GraphTemplate):
         self.fig.update_yaxes(showticksuffix='all', ticksuffix="€")
 
 
+class CategoryYearAvg(GraphTemplate):
+    """
+    Plot the average of subcategories in a bar graph per month per year
+    """
+
+    def __init__(self, transactions, category: str, subcategories: dict[str:dict[str:int|float]]):
+        super().__init__(transactions=transactions)
+        self.subcategories = subcategories
+        self.category = category
+        self.timeline = get_expenses_years(transactions)
+        self.__create_plot()
+
+    def __create_plot(self):
+        """
+        Create a subplot with all sub categories stacked in bars.
+        """
+        for subcategory, subcategory_expenses in self.subcategories.items():
+            self.fig.add_trace(
+                go.Bar(
+                    name=subcategory,
+                    x=self.timeline,
+                    y=list(subcategory_expenses['year'].values())
+                )
+            )
+
+
+        self.fig.update_layout(barmode='stack')
+
+        # Average
+        # category_expenses = get_month_exp_by_category(self.transactions)[self.category]
+
+        # category_avg = get_metric_average(category_expenses)
+        # self.fig.add_hline(
+        #     y=category_avg, line_dash="dash",
+        #     annotation_text=f'{self.category} average: ({category_avg:.2f}€)',
+        #     annotation_position="bottom right"
+        # )
+
+
+        # Axis
+        self.fig.update_yaxes(showticksuffix='all', ticksuffix="€")
+
 
 def get_overview_graphs(transactions: list[Transaction]) -> dict[str:str]:
     """
@@ -346,6 +422,7 @@ def get_overview_graphs(transactions: list[Transaction]) -> dict[str:str]:
         'Relative Balance': IncomeExpensesRelativeBalance,
         'Categories Overview Area': CategoriesOverviewArea,
         'Categories Overview Bars': CategoriesOverviewBars,
+        'Categories Average expenses': AverageExpensesYearBars,
     }
     overview_graphs = []
     for name, graph in graph_list.items():
@@ -369,6 +446,25 @@ def get_all_categories_detailed_bar_graphs(transactions: list[Transaction]):
     graphs = []
     for category, cat_expenses in expenses.items():
         cat_details = CategoryDetails(transactions, category, cat_expenses)
+        graphs.append(
+            {
+                'name': category,
+                'graph': cat_details.get_html(),
+            }
+        )
+    return graphs
+
+
+def get_all_categories_avg_expense_per_year_bar_graphs(transactions: list[Transaction]):
+    """
+    Return a dict of graphs with all categories divided in subcategories. Structure:
+
+    """
+    expenses = get_avg_category_expense_per_month_in_year(transactions)
+    print(expenses)
+    graphs = []
+    for category, cat_expenses in expenses.items():
+        cat_details = CategoryYearAvg(transactions, category, cat_expenses['subcategories'])
         graphs.append(
             {
                 'name': category,
