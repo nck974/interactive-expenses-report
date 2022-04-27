@@ -6,7 +6,8 @@ import os
 import re
 
 
-from lib.graphs import get_overview_graphs, get_all_categories_detailed_bar_graphs
+from lib.graphs import (get_all_categories_avg_expense_per_year_bar_graphs, 
+    get_overview_graphs, get_all_categories_detailed_bar_graphs)
 from lib.html_report import generate_report
 from lib.stats import get_year_expenses_by_category_with_subcategory
 from lib.transaction import Transaction
@@ -78,11 +79,13 @@ def main():
 
     overview_graphs = get_overview_graphs(transactions)
     category_details_graphs=get_all_categories_detailed_bar_graphs(transactions)
+    category_avg_graphs=get_all_categories_avg_expense_per_year_bar_graphs(transactions)
     year_expenses = get_year_expenses_by_category_with_subcategory(transactions)
 
     generate_report(
         graphs_overview=overview_graphs,
         graphs_category_details=category_details_graphs,
+        graphs_category_avg=category_avg_graphs,
         year_expenses=year_expenses
     )
 

@@ -142,6 +142,24 @@
               </div>
             </div>
             <div class="accordion-item">
+              <h2 class="accordion-header" id="headingTwoAndHalf">
+                <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#collapseTwoAndHalf" aria-expanded="false" aria-controls="collapseTwoAndHalf">
+                    Categories average per month
+                </button>
+              </h2>
+              <div id="collapseTwoAndHalf" class="accordion-collapse collapse" aria-labelledby="headingTwoAndHalf" data-bs-parent="#accordionIndex">
+                <div class="accordion-body">
+                    <ul class="list-group">
+                        {% for graph in graphs_category_avg %}
+                        <li class="list-group-item list-group-item-dark">
+                            <a class="nav-link" href="#{{graph['name']}}_avg"> <i class="bi bi-arrow-return-right"></i> {{graph['name']}}</a>
+                        </li>
+                        {% endfor %}
+                    </ul>               
+                </div>
+              </div>
+            </div>
+            <div class="accordion-item">
               <h2 class="accordion-header" id="headingThree">
                 <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#collapseThree" aria-expanded="false" aria-controls="collapseThree">
                   Data
@@ -177,6 +195,21 @@
         
         {% for graph in graphs_category_details %}
             <h2 id="{{graph['name']}}">
+                {{graph['name']}}
+            </h2>
+            <div class="graph__container">
+                {% autoescape off %}
+                {{ graph['graph'] }}
+                {% endautoescape %}
+            </div>
+        {% endfor %}
+        
+
+        <!-- Categories -->
+        <h1 id="categories_avg">Categories average per month</h1>
+        
+        {% for graph in graphs_category_avg %}
+            <h2 id="{{graph['name']}}_avg">
                 {{graph['name']}}
             </h2>
             <div class="graph__container">

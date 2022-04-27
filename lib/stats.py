@@ -248,13 +248,17 @@ def get_month_exp_by_category_with_subcategories(transactions: list[Transaction]
         for subcategory, subcategory_expenses in category_expenses.items():
             for date in timeline:
                 if not date in subcategory_expenses:
-                    subcategory_expenses[date] = 0
+                    expenses[category][subcategory][date] = 0
 
 
     for category, category_expenses in expenses.items():
         for subcategory, subcategory_expenses in category_expenses.items():
-            subcategory_expenses = dict(sorted(subcategory_expenses.items()))
+            expenses[category][subcategory] = dict(sorted(subcategory_expenses.items()))
 
+        # Sort from more expenses to less the categories
+        expenses[category] = OrderedDict(
+            sorted(expenses[category].items(), key=lambda x: sum(x[1].values()), reverse=True)
+        )
     return expenses
 
 
@@ -316,7 +320,7 @@ def get_year_expenses_by_category_with_subcategory(transactions: list[Transactio
 
 
         if subcategory is None or subcategory == '':
-            continue
+            subcategory = 'No subcategory'
 
         if not subcategory in expenses['categories'][category]['subcategories']:
             expenses['categories'][category]['subcategories'][subcategory] = {}
@@ -365,19 +369,33 @@ def get_avg_category_expense_per_month_in_year(transactions):
     Return the average expenses per category and subcategory per year
     """
     year_expenses = get_year_expenses_by_category_with_subcategory(transactions)['categories']
+    years = get_expenses_years(transactions)
 
     avg_expenses = {}
     for category, cat_expenses in year_expenses.items():
         avg_expenses[category] = {'year': {}, 'subcategories': {}} # Initialize
-        for year, year_expense in cat_expenses['year'].items():
-            avg_expenses[category]['year'][year] = \
-                year_expense / _get_number_of_months_with_transactions_in_year(transactions, year)
+
+        if not 'year' in cat_expenses:
+            cat_expenses['year'] = {}
+
+
+        for year in years:
+            if year in cat_expenses['year']:
+                avg_expenses[category]['year'][year] = cat_expenses['year'][year] / \
+                    _get_number_of_months_with_transactions_in_year(transactions, year)
+            else:
+                avg_expenses[category]['year'][year] = 0
+
         for subcategory, subcat_expenses in cat_expenses['subcategories'].items():
             avg_expenses[category]['subcategories'][subcategory] = {'year': {}}
-            for subcat_year, subcat_year_expense in subcat_expenses['year'].items():
-                avg_expenses[category]['subcategories'][subcategory]['year'][subcat_year] = \
-                    subcat_year_expense / \
-                        _get_number_of_months_with_transactions_in_year(transactions, subcat_year)
+
+            for subyear in years:
+                if subyear in subcat_expenses['year']:
+                    avg_expenses[category]['subcategories'][subcategory]['year'][subyear] = \
+                        subcat_expenses['year'][subyear] / \
+                        _get_number_of_months_with_transactions_in_year(transactions, subyear)
+                else:
+                    avg_expenses[category]['subcategories'][subcategory]['year'][subyear] = 0
 
     return avg_expenses
 
@@ -388,10 +406,10 @@ def get_category_average_expenses(transactions):
     """
     expenses = get_avg_category_expense_per_month_in_year(transactions)
     years = get_expenses_years(transactions)
-    
+
     avg_expenses = {}
     for category, category_expenses in expenses.items():
-        
+
         # Fill empty years
         for year in years:
             if year not in category_expenses['year']:
