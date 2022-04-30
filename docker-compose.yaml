@@ -1,0 +1,9 @@
+version: '3'
+
+services:
+  interactive-expenses-report:
+    container_name: interactive-expenses-report
+    image: nck974/interactive-expenses-report:latest
+    volumes:
+      - ./input/:/app/input/
+      - ./output/:/app/output/

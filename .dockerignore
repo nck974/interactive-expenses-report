@@ -1,0 +1,10 @@
+input/**
+ouput/**
+.venv
+__pycache__
+.github
+.gitignore
+.pylintrc
+docker-compose.yaml
+LICENSE
+README.md
