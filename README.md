@@ -8,11 +8,10 @@ Create an HTML report of your expenses from a set of expenses/income stored in a
 This project aims to create some graphs from that data which can give you a better overview where are you spending your money.
 
 <p align="center">
-  <img src="static/images/index.png" width="500px">
-  <img src="static/images/overview.png" width="500px">
-  <img src="static/images/balance.png" width="500px">
-  <img src="static/images/year.png" width="500px">
+  <img src="static/images/example.gif" width="800px">
 </p>
+
+A complete report example can be found in the `example` folder. 
 
 ## Data structure
 
@@ -24,6 +23,8 @@ The expected input has to be stored as a `.csv` file inside the `input folder` w
 ```
 
 Note that the differentiation between of incomes and expenses is only done by the sign of the value. `Date`, `value`, `description`, and `category` are mandatory fields.
+
+A sample file can be generated using the `example.py` file.
 
 ## Prerequisites
 
