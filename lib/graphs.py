@@ -461,7 +461,7 @@ def get_all_categories_avg_expense_per_year_bar_graphs(transactions: list[Transa
 
     """
     expenses = get_avg_category_expense_per_month_in_year(transactions)
-    print(expenses)
+
     graphs = []
     for category, cat_expenses in expenses.items():
         cat_details = CategoryYearAvg(transactions, category, cat_expenses['subcategories'])
