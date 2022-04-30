@@ -27,9 +27,18 @@ Note that the differentiation between of incomes and expenses is only done by th
 
 ## Prerequisites
 
-1. `python 3.10` should be installed, although `3.9` may work it has not been tested.
+### No docker
+
+- `python 3.10` should be installed, although `3.9` may work it has not been tested.
+
+### Docker
+
+- Docker is installed.
 
 ## Installation
+
+
+### No Docker
 
 1. Clone the project or download the last release.
 1. Is recommended to use a virtual environment:
@@ -44,8 +53,22 @@ Note that the differentiation between of incomes and expenses is only done by th
     pip install -r requirements.txt
     ```
 
+### Docker
+
+- No installation is required.
+
 ## Usage
 
+### Docker
+
+1. You can make use of the `docker-compose.yaml` provided.
+1. Place your expenses `.csv` files in the `input` folder.
+1. Start the docker compose with `docker-compose up`.
+1. The report shall be generated in the `output` folder.
+
+### No docker.
+
+1. Install the dependencies with `pip install -r requirements.txt`
 1. Place the expenses csv files inside the `input` folder.
 1. Execute the `interactive_expenses_report.py` script with:
     ```shell
@@ -56,4 +79,23 @@ Note that the differentiation between of incomes and expenses is only done by th
 
 ## Settings
 
-The settings that could be changed like `currency` or the `report title` can be changed in the `settings.py` file.
+The settings that could be changed like `currency` or the `report title` can be changed in the `settings.py` file. This is currently only supported in the non docker mode.
+
+
+## Development
+
+1. Create docker images:
+    1. Build the docker image with
+        ```shell
+        docker build --tag interactive-expenses-report:x.y.z .
+        ```
+    1. Create the tags:
+        ```
+        docker tag interactive-expenses-report:x.y.z nck974/interactive-expenses-report:xyz
+        docker tag interactive-expenses-report:x.y.z nck974/interactive-expenses-report:latest
+        ```
+    1. Push the images to the registry:
+        ```
+        docker push nck974/interactive-expenses-report:x.y.z
+        docker push nck974/interactive-expenses-report:latest
+        ```
