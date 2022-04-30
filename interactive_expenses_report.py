@@ -6,7 +6,7 @@ import os
 import re
 
 
-from lib.graphs import (get_all_categories_avg_expense_per_year_bar_graphs, 
+from lib.graphs import (get_all_categories_avg_expense_per_year_bar_graphs,
     get_overview_graphs, get_all_categories_detailed_bar_graphs)
 from lib.html_report import generate_report
 from lib.stats import get_year_expenses_by_category_with_subcategory
