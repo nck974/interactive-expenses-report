@@ -8,7 +8,7 @@ Create an HTML report of your expenses from a set of expenses/income stored in a
 This project aims to create some graphs from that data which can give you a better overview where are you spending your money.
 
 <p align="center">
-  <img src="static/images/example.gif.png" width="500px">
+  <img src="static/images/example.gif" width="500px">
 </p>
 
 A complete report example can be found in the `example` folder. 
