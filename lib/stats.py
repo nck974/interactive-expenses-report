@@ -1,5 +1,5 @@
 """
-This file takes charge of grouping and sorting all transactions to be plotted or represented
+This file takes charge of grouping and sorting all transactions to be plotted
 """
 from collections import OrderedDict
 import datetime
@@ -20,6 +20,7 @@ def _get_min_date(transactions: list[Transaction]):
                 min_date = transaction.date
     return min_date
 
+
 def _get_max_date(transactions: list[Transaction]):
     """
     Return the date of the oldest transaction
@@ -33,9 +34,11 @@ def _get_max_date(transactions: list[Transaction]):
                 max_date = transaction.date
     return max_date
 
+
 def get_timeline(transactions: list[Transaction]) -> list[str]:
     """
     Return a list of strings for each month of each year available in the transactions
+    TODO: Delete
     """
     min_date: datetime = _get_min_date(transactions)
     max_date: datetime = _get_max_date(transactions)
@@ -55,64 +58,63 @@ def get_timeline(transactions: list[Transaction]) -> list[str]:
     return timeline
 
 
-def get_monthly_total_expenses(transactions: list[Transaction]) -> dict[str: float]:
+def get_months(transactions: list[Transaction]) -> list[str]:
+    """
+    Return a list of strings for each month of each year available in the transactions
+    """
+    min_date: datetime = _get_min_date(transactions)
+    max_date: datetime = _get_max_date(transactions)
+
+    months = []
+    for year in range(min_date.year, max_date.year+1):
+        for month in range(1,12+1):
+            if year == min_date.year:
+                if month < min_date.month:
+                    continue
+            if year == max_date.year:
+                if month > max_date.month:
+                    continue
+            month_number = datetime.date(1900, month, 1).strftime('%m')
+            months.append(f'{str(year)[-2:]}_{month_number}')
+
+    return months
+
+
+def get_transactions_by_month(raw_transactions: list[Transaction], trans_type: str
+                                                                            ) -> dict[str: float]:
     """
     Get the total expenses by month of the given list of transactions
+    trans_type: Can be the string 'EXPENSE' or 'INCOME'
     """
-    expenses = {}
-    for transaction in reversed(transactions):
+    transactions = {}
+    for transaction in raw_transactions:
 
-        if transaction.transaction_type != 'EXPENSE':
+        if transaction.transaction_type != trans_type:
             continue
 
         date = f'{str(transaction.date.year)[-2:]}_{transaction.date.strftime("%m")}'
-        if date in expenses:
-            expenses[date] = expenses[date] + abs(transaction.value)
+        if date in transactions:
+            transactions[date] = transactions[date] + abs(transaction.value)
         else:
-            expenses[date] = abs(transaction.value)
+            transactions[date] = abs(transaction.value)
 
-    timeline = get_timeline(transactions)
-    for date in timeline:
-        if not date in expenses:
-            expenses[date] = 0
+    # Set to 0 all months that are not present
+    months = get_months(raw_transactions)
+    for month in months:
+        if not month in transactions:
+            transactions[month] = 0
 
-    expenses = dict(sorted(expenses.items()))
+    transactions = dict(sorted(transactions.items()))
 
-    return expenses
-
-
-def get_monthly_total_income(transactions: list[Transaction]) -> dict[str: float]:
-    """
-    Get the total income by month of the given list of transactions
-    """
-    income = {}
-    for transaction in reversed(transactions):
-
-        if transaction.transaction_type != 'INCOME':
-            continue
-
-        date = f'{str(transaction.date.year)[-2:]}_{transaction.date.strftime("%m")}'
-        if date in income:
-            income[date] = income[date] + abs(transaction.value)
-        else:
-            income[date] = abs(transaction.value)
-
-    timeline = get_timeline(transactions)
-    for date in timeline:
-        if not date in income:
-            income[date] = 0
-
-    income = dict(sorted(income.items()))
-
-    return income
+    return transactions
 
 
-def get_income_expenses_balance(transactions: list[Transaction]) -> dict[str: float]:
+def get_balance(transactions: list[Transaction]) -> dict[str: float]:
     """
     Get difference between expenses and income per month
     """
-    expenses = get_monthly_total_expenses(transactions)
-    income = get_monthly_total_income(transactions)
+    expenses = get_transactions_by_month(transactions, 'EXPENSE')
+    income = get_transactions_by_month(transactions, 'INCOME')
     balance = {}
     for date, expense in expenses.items():
         income_value = income[date]
@@ -120,12 +122,12 @@ def get_income_expenses_balance(transactions: list[Transaction]) -> dict[str: fl
     return balance
 
 
-def get_inc_exp_balance_percent(transactions: list[Transaction]) -> dict[str: float]:
+def get_balance_percentage(transactions: list[Transaction]) -> dict[str: float]:
     """
-    Get difference between expenses and income per month
+    Get difference between expenses and income per month as a percentage
     """
-    expenses = get_monthly_total_expenses(transactions)
-    income = get_monthly_total_income(transactions)
+    expenses = get_transactions_by_month(transactions, 'EXPENSE')
+    income = get_transactions_by_month(transactions, 'INCOME')
     balance = {}
     for date, expense in expenses.items():
         income_value = income[date]
@@ -166,23 +168,20 @@ def __sort_categories_by_expense(expenses) -> list[str]:
     return category_total_expenses.keys()
 
 
-def get_month_exp_by_category(transactions: list[Transaction]
-        ) -> OrderedDict[str:dict[str:float]]:
+def get_categories_by_month(transactions: list[Transaction], trans_type: str
+                                                            ) -> OrderedDict[str:dict[str:float]]:
     """
     Return a dict with the list of categories (without subcategories)
+    trans_type: Can be 'EXPENSE' or 'INCOME'
     """
-    categories = []
     expenses = {}
-    for transaction in reversed(transactions):
+    for transaction in transactions:
 
-        if transaction.transaction_type != 'EXPENSE':
+        if transaction.transaction_type != trans_type:
             continue
 
         date = f'{str(transaction.date.year)[-2:]}_{transaction.date.strftime("%m")}'
         category = transaction.category
-
-        if not category in categories:
-            categories.append(category)
 
         if not category in expenses:
             expenses[category] = {}
@@ -194,15 +193,17 @@ def get_month_exp_by_category(transactions: list[Transaction]
 
 
     # Fill empty categories
-    timeline = get_timeline(transactions)
+    months = get_months(transactions)
     for category, cat_expenses in expenses.items():
-        for date in timeline:
-            if not date in cat_expenses:
-                cat_expenses[date] = 0
+        for month in months:
+            if not month in cat_expenses:
+                cat_expenses[month] = 0
 
 
     # Sort by total amount spent
     sorted_categories = __sort_categories_by_expense(expenses)
+    
+    # Sort dates
     category_expenses = OrderedDict()
     for category in sorted_categories:
         category_expenses[category] = dict(sorted(expenses[category].items()))
@@ -210,7 +211,7 @@ def get_month_exp_by_category(transactions: list[Transaction]
     return category_expenses
 
 
-def get_month_exp_by_category_with_subcategories(transactions: list[Transaction]):
+def get_categories_by_month_with_subcategories(transactions: list[Transaction]):
     """
     Get monthly expenses with the details of the subcategories. If an expense does not have a
     subcategory a default 'No subcategory' will be created

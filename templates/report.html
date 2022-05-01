@@ -99,9 +99,11 @@
     <div class="bg-dark text-white">
         
         <div class="accordion graph__container" id="accordionIndex">
+            <hr>
             <h1 class="h1 global__title">
                 {{title}}
             </h1>
+            <hr>
         </div>
         <!-- Index -->        
         <div class="accordion graph__container" id="accordionIndex">
@@ -116,7 +118,7 @@
                     <ul class="list-group">
                         {% for graph in graphs_overview %}
                         <li class="list-group-item list-group-item-dark">
-                            <a class="nav-link" href="#{{graph['name']}}"> <i class="bi bi-arrow-return-right"></i> {{graph['name']}}</a>
+                            <a class="nav-link" href="#{{graph.name}}"> <i class="bi bi-arrow-return-right"></i> {{graph.name}}</a>
                         </li>
                         {% endfor %}
                     </ul>
@@ -176,22 +178,31 @@
         </div>
 
         <!-- Overview -->
+        <hr>
         <h1 id="overview">Overview</h1>
-    
+        <hr>
+        
         {% for graph in graphs_overview %}
-            <h2 id="{{graph['name']}}">
-                {{graph['name']}}
+            <h2 id="{{graph.name}}">
+                {{graph.name}}
             </h2>
             <div class="graph__container">
                 {% autoescape off %}
-                {{ graph['graph'] }}
+                {{ graph.html }}
                 {% endautoescape %}
             </div>
         {% endfor %}
-    
         
+        {% for _ in range(1,15) %}
+        <br>
+        {% endfor %}
+
+
         <!-- Categories -->
+        <hr>
         <h1 id="categories">Categories</h1>
+        <hr>
+        
         
         {% for graph in graphs_category_details %}
             <h2 id="{{graph['name']}}">
@@ -205,8 +216,10 @@
         {% endfor %}
         
 
-        <!-- Categories -->
+        <!-- Categories avg -->
+        <hr>
         <h1 id="categories_avg">Categories average per month</h1>
+        <hr>
         
         {% for graph in graphs_category_avg %}
             <h2 id="{{graph['name']}}_avg">
