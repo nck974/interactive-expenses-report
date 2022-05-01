@@ -7,6 +7,8 @@ Create an HTML report of your expenses from a set of expenses/income stored in a
 
 This project aims to create some graphs from that data which can give you a better overview where are you spending your money.
 
+The goal is to have a single file self contained which has enough information to make some decisions.
+
 <p align="center">
   <img src="static/images/example.gif" width="800px">
 </p>
@@ -22,7 +24,16 @@ The expected input has to be stored as a `.csv` file inside the `input folder` w
 "dd/mm/yyyy";"My income name";"xxx.xx";"Wallet";"category name";"subcategory name";" (currently not used)"
 ```
 
-Note that the differentiation between of incomes and expenses is only done by the sign of the value. `Date`, `value`, `description`, and `category` are mandatory fields.
+Note that the differentiation between of incomes and expenses is only done by the sign of the value. `Date`, `Value`, `Description`, and `Category` are mandatory fields.
+
+- *Date*: Date. Date in the format `%d/%m/%Y`.
+- *Value*: Float. Value of the expense with prefix `-`. Otherwise it is the value of the income.
+- *Account*: Not used.
+- *Tags*: Not used.
+- *Description*: Ma,e pf the transaction.
+- *category*: String. Name of the category of an income/expense.
+- *subcategory*: String Name of the subcategory of an income/expense within a category. Not mandatory.
+
 
 A sample file can be generated using the `example.py` file.
 
@@ -100,3 +111,10 @@ The settings that could be changed like `currency` or the `report title` can be 
         docker push nck974/interactive-expenses-report:x.y.z
         docker push nck974/interactive-expenses-report:latest
         ```
+
+## Support
+
+This project took more than `13h` (measured thanks to [wakapi](https://github.com/muety/wakapi)) at a rate of around 1 coffee each 2h. If this is useful [consider donating one coffee](https://www.buymeacoffee.com/nck974) to the ones it took to create this.  
+<p align="center">
+  <img src="static/images/example.gif" width="800px">
+</p>
