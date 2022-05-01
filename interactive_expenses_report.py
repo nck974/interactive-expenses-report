@@ -6,11 +6,11 @@ import re
 
 
 from lib.graphs import (
-    get_all_categories_avg_expense_per_year_bar_graphs,
+    get_category_average_bar_graphs,
     get_overview_graphs,
-    get_all_categories_detailed_bar_graphs)
+    get_category_detailed_bar_graphs)
 from lib.html_report import generate_report
-from lib.stats import get_year_expenses_by_category_with_subcategory
+from lib.stats import get_categories_by_year_with_subcategory
 from lib.transaction import read_transactions
 
 from settings import INPUT_DIR
@@ -40,9 +40,9 @@ def main():
     transactions = read_transactions(get_input_files())
 
     overview_graphs = get_overview_graphs(transactions)
-    category_details_graphs=get_all_categories_detailed_bar_graphs(transactions)
-    category_avg_graphs=get_all_categories_avg_expense_per_year_bar_graphs(transactions)
-    year_expenses = get_year_expenses_by_category_with_subcategory(transactions)
+    category_details_graphs=get_category_detailed_bar_graphs(transactions)
+    category_avg_graphs=get_category_average_bar_graphs(transactions)
+    year_expenses = get_categories_by_year_with_subcategory(transactions)
 
     generate_report(
         graphs_overview=overview_graphs,

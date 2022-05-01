@@ -2,7 +2,7 @@
 <html>
 <head>
   <meta charset="utf-8">
-  
+
   <!-- STYLING -->
   <style>
     /* global */
@@ -31,16 +31,16 @@
         font-weight: bolder;
         text-decoration-line: underline;
         text-decoration-thickness: 0.1rem;
-    }    
+    }
     .table_year__category{
         border: dashed black;
     }
     .table_year__link{
         color: rgba(var(--bs-white-rgb),var(--bs-text-opacity)) !important;
-        text-decoration-line: none;  
-    }    
+        text-decoration-line: none;
+    }
     .table_year__link:hover{
-        font-weight: bold;      
+        font-weight: bold;
         text-decoration-line: underline;
     }
 
@@ -55,7 +55,7 @@
         background-color: #495057 !important;
         --bs-bg-opacity: 1;
         color: rgba(var(--bs-white-rgb),var(--bs-text-opacity)) !important
-    }    
+    }
     .accordion-button.collapsed{
         background-color: #495057 !important;
         --bs-bg-opacity: 1;
@@ -63,7 +63,7 @@
     }
     .accordion-header:hover {
         border: 1px solid #c5c5c5 !important;
-    }    
+    }
     .accordion-button:hover {
         border: 1px solid #c5c5c5 !important;
     }
@@ -85,11 +85,11 @@
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-1BmE4kWBq78iYhFldvKuhfTAU6auU8tT94WrHftjDbrCEXSU1oBoqyl2QvZ6jIW3" crossorigin="anonymous">  <!-- <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@4.1.3/dist/css/bootstrap.min.css" integrity="sha384-MCw98/SFnGE8fJT3GXwEOngsV7Zt27NXFoaoApmYm81iuXoPkFOJwJ8ERdknLPMO" crossorigin="anonymous"> -->
     <!-- Bootstrap JS -->
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/js/bootstrap.bundle.min.js" integrity="sha384-ka7Sk0Gln4gmtz2MlQnikT1wXgYsOg+OMhuP+IlRH9sENBO0LRn5q+8nbTov4+1p" crossorigin="anonymous"></script>
-    
-    
+
+
     <meta name="viewport" content="width=device-width, initial-scale=1">
-    
-    
+
+
     <title>{{title}}</title>
 
 
@@ -97,7 +97,7 @@
 
 <body>
     <div class="bg-dark text-white">
-        
+
         <div class="accordion graph__container" id="accordionIndex">
             <hr>
             <h1 class="h1 global__title">
@@ -105,7 +105,7 @@
             </h1>
             <hr>
         </div>
-        <!-- Index -->        
+        <!-- Index -->
         <div class="accordion graph__container" id="accordionIndex">
             <div class="accordion-item">
               <h2 class="accordion-header bg-dark " id="headingOne">
@@ -136,17 +136,17 @@
                     <ul class="list-group">
                         {% for graph in graphs_category_details %}
                         <li class="list-group-item list-group-item-dark">
-                            <a class="nav-link" href="#{{graph['name']}}"> <i class="bi bi-arrow-return-right"></i> {{graph['name']}}</a>
+                            <a class="nav-link" href="#{{graph.name}}"> <i class="bi bi-arrow-return-right"></i> {{graph.name}}</a>
                         </li>
                         {% endfor %}
-                    </ul>               
+                    </ul>
                 </div>
               </div>
             </div>
             <div class="accordion-item">
               <h2 class="accordion-header" id="headingTwoAndHalf">
                 <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#collapseTwoAndHalf" aria-expanded="false" aria-controls="collapseTwoAndHalf">
-                    Categories average per month
+                    Categories average monthly expenses per year
                 </button>
               </h2>
               <div id="collapseTwoAndHalf" class="accordion-collapse collapse" aria-labelledby="headingTwoAndHalf" data-bs-parent="#accordionIndex">
@@ -154,10 +154,10 @@
                     <ul class="list-group">
                         {% for graph in graphs_category_avg %}
                         <li class="list-group-item list-group-item-dark">
-                            <a class="nav-link" href="#{{graph['name']}}_avg"> <i class="bi bi-arrow-return-right"></i> {{graph['name']}}</a>
+                            <a class="nav-link" href="#{{graph.name}}_avg"> <i class="bi bi-arrow-return-right"></i> {{graph.name}}</a>
                         </li>
                         {% endfor %}
-                    </ul>               
+                    </ul>
                 </div>
               </div>
             </div>
@@ -171,7 +171,7 @@
                 <div class="accordion-body">
                     <ul class="list-group">
                         <li class="list-group-item list-group-item-dark"><a class="nav-link" href="#year-expenses">Year expenses</a></li>
-                    </ul>               
+                    </ul>
                 </div>
               </div>
             </div>
@@ -181,7 +181,7 @@
         <hr>
         <h1 id="overview">Overview</h1>
         <hr>
-        
+
         {% for graph in graphs_overview %}
             <h2 id="{{graph.name}}">
                 {{graph.name}}
@@ -192,7 +192,7 @@
                 {% endautoescape %}
             </div>
         {% endfor %}
-        
+
         {% for _ in range(1,15) %}
         <br>
         {% endfor %}
@@ -202,47 +202,57 @@
         <hr>
         <h1 id="categories">Categories</h1>
         <hr>
-        
-        
+
+
         {% for graph in graphs_category_details %}
-            <h2 id="{{graph['name']}}">
-                {{graph['name']}}
+            <h2 id="{{graph.name}}">
+                {{graph.name}}
             </h2>
             <div class="graph__container">
                 {% autoescape off %}
-                {{ graph['graph'] }}
+                {{ graph.html }}
                 {% endautoescape %}
             </div>
         {% endfor %}
-        
+
+
+        {% for _ in range(1,15) %}
+        <br>
+        {% endfor %}
+
 
         <!-- Categories avg -->
         <hr>
-        <h1 id="categories_avg">Categories average per month</h1>
+        <h1 id="categories_avg">Categories average monthly expenses per year</h1>
         <hr>
-        
+
         {% for graph in graphs_category_avg %}
-            <h2 id="{{graph['name']}}_avg">
-                {{graph['name']}}
+            <h2 id="{{graph.name}}_avg">
+                {{graph.name}} (Average)
             </h2>
             <div class="graph__container">
                 {% autoescape off %}
-                {{ graph['graph'] }}
+                {{ graph.html }}
                 {% endautoescape %}
             </div>
         {% endfor %}
-        
+
+        {% for _ in range(1,15) %}
+        <br>
+        {% endfor %}
 
         <!-- Table expenses year -->
+        <hr>
         <h1 id="year-expenses">Yearly expenses</h1>
-        
+        <hr>
+
         <div class="graph__container">
 
             <table class="table table-dark table-striped">
                 <thead class="thead-dark">
                     <tr>
                         <th>
-        
+
                         </th>
                         {% for year in year_expenses['year'] %}
                         <th>
@@ -287,7 +297,7 @@
                             {% endfor %}
                         {% endif %}
                     {% endfor %}
-                   
+
                     <!-- Total -->
                     <tr>
                         <th>
