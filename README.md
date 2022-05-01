@@ -114,7 +114,7 @@ The settings that could be changed like `currency` or the `report title` can be 
 
 ## Support
 
-This project took more than `13h` (measured thanks to [wakapi](https://github.com/muety/wakapi)) at a rate of around 1 coffee each 2h. If this is useful [consider donating one coffee](https://www.buymeacoffee.com/nck974) to the ones it took to create this.  
+This project took more than `13h` (measured thanks to [wakapi](https://github.com/muety/wakapi)) at a rate of around 1 coffee each 2h. If this is useful [consider donating one coffee](https://www.buymeacoffee.com/nck974), adding a start or proposing features.  
 <p align="center">
   <img src="static/images/support.png" width="800px">
 </p>
