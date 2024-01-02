@@ -5,28 +5,30 @@ Pydantic model fo the transactions
 # pylint: disable=no-self-argument
 # pylint: disable=no-self-use
 import csv
-from typing import Optional
+from typing import Any, Optional
 from datetime import datetime
 
-from pydantic import BaseModel, Field, validator
+from pydantic import BaseModel, Field, validator  # type: ignore
+
 
 class Transaction(BaseModel):
     """
     Representation of a transaction
     """
-    date: datetime = Field(alias='Date')
-    description: str = Field(alias='Description')
-    value: float = Field(alias='Value')
-    category: str = Field(alias='Category')
-    tags: str  = Field(alias='Tags', default=None)
-    account: str = Field(alias='Account', default=None)
-    wallet: str = Field(alias='Wallet', default=None)
-    subcategory: str = Field(alias='Subcategory', default=None)
+
+    date: datetime = Field(alias="Date")
+    description: str = Field(alias="Description")
+    value: float = Field(alias="Value")
+    category: str = Field(alias="Category")
+    tags: str = Field(alias="Tags", default=None)
+    account: str = Field(alias="Account", default=None)
+    wallet: str = Field(alias="Wallet", default=None)
+    subcategory: str = Field(alias="Subcategory", default=None)
 
     transaction_type: Optional[str]
 
     @validator("transaction_type", always=True)
-    def validate_date(cls, _value, values):
+    def validate_date(cls, _value: Any, values: Any):
         """
         Set a transaction type depending on the amount of the value
         """
@@ -35,32 +37,36 @@ class Transaction(BaseModel):
         return "INCOME"
 
     @validator("date", pre=True)
-    def parse_date(cls, value):
+    def parse_date(cls, value: Any):
         """
         Convert dates to datetime objects
         """
-        return datetime.strptime(
-            value,
-            "%d/%m/%Y"
-        )
+        if value is not None:
+            return datetime.strptime(value, "%d/%m/%Y")
+        return value
 
     class Config:
         """
         Pydantic config
         """
+
         orm_mode = True
 
 
-def _remove_duplicated_transactions(transactions: list[Transaction]):
+def _remove_duplicated_transactions(
+    transactions: list[Transaction],
+) -> list[Transaction]:
     """
     Remove duplicated transactions to be safe from overlapping exports. Is considered a duplicated
     transaction when the  date, value, category and description match.
     """
-    seen_transactions = set()
-    unique_list = []
+    seen_transactions: set[str] = set()
+    unique_list: list[Transaction] = []
     for transaction in transactions:
-        unique = f'{transaction.date.isoformat()}-{transaction.description}' + \
-            f'-{transaction.value}-{transaction.description}'
+        unique = (
+            f"{transaction.date.isoformat()}-{transaction.description}"
+            + f"-{transaction.value}-{transaction.description}"
+        )
         if unique not in seen_transactions:
             unique_list.append(transaction)
             seen_transactions.add(unique)
@@ -70,19 +76,22 @@ def _remove_duplicated_transactions(transactions: list[Transaction]):
     return unique_list
 
 
-def read_transactions(csv_files) -> list[Transaction]:
+def read_transactions(csv_files: list[str]) -> list[Transaction]:
     """
     Read all transactions from a csv file and return them as a list of the pydantic model.
     """
-    transactions = []
+    transactions: list[Transaction] = []
     for csv_file in csv_files:
-        with open(csv_file, mode='r',  encoding='utf-16') as csvfile:
-            reader = csv.DictReader(csvfile, delimiter=';')
+        with open(csv_file, mode="r", encoding="utf-16") as csvfile:
+            reader = csv.DictReader(csvfile, delimiter=";")
             for row in reader:
-                transactions.append( Transaction(**row) )
+                try:
+                    transactions.append(Transaction(**row))  # type: ignore
+                except ValueError:
+                    print(f"Error reading transaction {row}")
 
     if not transactions:
-        raise ValueError('No transactions could be found in the CSV file')
+        raise ValueError("No transactions could be found in the CSV file")
 
     transactions = _remove_duplicated_transactions(transactions)
 
