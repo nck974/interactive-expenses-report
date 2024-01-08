@@ -5,10 +5,20 @@ Pydantic model fo the transactions
 # pylint: disable=no-self-argument
 # pylint: disable=no-self-use
 import csv
+import re
 from typing import Any, Optional
 from datetime import datetime
 
 from pydantic import BaseModel, Field, validator  # type: ignore
+
+
+def _fix_utf8_characters(string: str) -> str:
+    """
+    Remove icons not supported by ansi
+    """
+    string = re.sub(re.escape("??"), "", string)
+    string = re.sub(re.escape("?"), "", string)
+    return string.strip()
 
 
 class Transaction(BaseModel):
@@ -17,22 +27,22 @@ class Transaction(BaseModel):
     """
 
     date: datetime = Field(alias="Date")
-    description: str = Field(alias="Description")
-    value: float = Field(alias="Value")
+    description: str = Field(alias="Note")
     category: str = Field(alias="Category")
+    value: float = Field(alias="Amount")
     tags: str = Field(alias="Tags", default=None)
     account: str = Field(alias="Account", default=None)
     wallet: str = Field(alias="Wallet", default=None)
     subcategory: str = Field(alias="Subcategory", default=None)
 
-    transaction_type: Optional[str]
+    transaction_type: Optional[str] = Field(default=None, alias="Income/Expense")
 
-    @validator("transaction_type", always=True)
-    def validate_date(cls, _value: Any, values: Any):
+    @validator("transaction_type", always=True, pre=True)
+    def validate_type(cls, value: Any):
         """
         Set a transaction type depending on the amount of the value
         """
-        if values["value"] < 0:
+        if value == "Expense":
             return "EXPENSE"
         return "INCOME"
 
@@ -42,7 +52,16 @@ class Transaction(BaseModel):
         Convert dates to datetime objects
         """
         if value is not None:
-            return datetime.strptime(value, "%d/%m/%Y")
+            return datetime.strptime(value, "%m/%d/%Y")
+        return value
+
+    @validator(*["subcategory", "category"], pre=True)
+    def fix_utf8(cls, value: Any):
+        """
+        Fix utf8 characters
+        """
+        if value is not None:
+            return _fix_utf8_characters(value)
         return value
 
     class Config:
@@ -82,13 +101,10 @@ def read_transactions(csv_files: list[str]) -> list[Transaction]:
     """
     transactions: list[Transaction] = []
     for csv_file in csv_files:
-        with open(csv_file, mode="r", encoding="utf-16") as csvfile:
-            reader = csv.DictReader(csvfile, delimiter=";")
+        with open(csv_file, mode="r", encoding="ANSI") as csvfile:
+            reader = csv.DictReader(csvfile, delimiter=",")
             for row in reader:
-                try:
-                    transactions.append(Transaction(**row))  # type: ignore
-                except ValueError:
-                    print(f"Error reading transaction {row}")
+                transactions.append(Transaction(**row))  # type: ignore
 
     if not transactions:
         raise ValueError("No transactions could be found in the CSV file")
