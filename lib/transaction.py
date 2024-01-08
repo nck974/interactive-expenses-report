@@ -3,7 +3,6 @@ Pydantic model fo the transactions
 """
 # Disable no-self due to the validators of pydantic
 # pylint: disable=no-self-argument
-# pylint: disable=no-self-use
 import csv
 import re
 from typing import Any, Optional
@@ -64,6 +63,7 @@ class Transaction(BaseModel):
             return _fix_utf8_characters(value)
         return value
 
+    # pylint: disable=too-few-public-methods
     class Config:
         """
         Pydantic config

@@ -146,7 +146,7 @@ def _sort_categories_by_expense(expenses: dict[str, Any]) -> list[str]:
     category_total_expenses = OrderedDict(
         sorted(category_total_expenses.items(), key=lambda x: x[1], reverse=True)
     )
-    return list(map(lambda x: str(x), category_total_expenses.keys()))
+    return list(map(str, category_total_expenses.keys()))
 
 
 def get_categories_by_month(
