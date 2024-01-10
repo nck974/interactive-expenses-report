@@ -3,20 +3,21 @@ Generate some graphs making use of plotly
 """
 
 from dataclasses import dataclass
-from plotly.offline import plot
+
 import plotly.graph_objects as go
-from lib.transaction import Transaction
+from plotly.offline import plot
 
 from lib.stats import (
-    get_categories_average_in_year,
     get_balance,
     get_balance_percentage,
+    get_categories_average_in_year,
     get_categories_average_in_year_with_subcategories,
-    get_metric_average,
     get_categories_by_month,
     get_categories_by_month_with_subcategories,
+    get_metric_average,
     get_transactions_by_month,
 )
+from lib.transaction import Transaction
 
 
 class GraphTemplate:
@@ -28,7 +29,7 @@ class GraphTemplate:
     transactions: list[Transaction]
     fig: go.Figure
 
-    def __init__(self, transactions: list[Transaction] = None) -> None:
+    def __init__(self, transactions: list[Transaction]) -> None:
         self.transactions = transactions
         self.fig = go.Figure()
         self.fig.update_layout(template=self._get_default_theme_template())
@@ -82,7 +83,7 @@ class IncomeExpenses(GraphTemplate):
     Plot the expenses divided by main categories in an area stacked plot
     """
 
-    def __init__(self, transactions):
+    def __init__(self, transactions: list[Transaction]):
         super().__init__(transactions)
         self._create_plot()
 
@@ -244,6 +245,22 @@ class RelativeBalance(GraphTemplate):
                 annotation_text=f"Average ({balance_avg:.2f}%)",
                 annotation_position="bottom right",
             )
+
+        # Mark last year saving
+        last_year = {}
+        for month in list(sorted(balance.keys()))[-12:]:
+            last_year[month] = balance[month]
+        balance_last_year_avg = get_metric_average(last_year)
+        print(last_year)
+        if balance_last_year_avg is not None:
+            self.fig.add_hline(
+                y=balance_last_year_avg,
+                line_dash="dash",
+                line_color="blue",
+                annotation_text=f"Last year average ({balance_last_year_avg:.2f}%)",
+                annotation_position="top right",
+            )
+
         # Mark 0
         self.fig.add_hline(
             y=0,
@@ -394,7 +411,21 @@ class CategoryDetail(GraphTemplate):
             y=category_avg,
             line_dash="dash",
             annotation_text=f"Average: ({category_avg:.2f}€)",
+            annotation_position="top right",
+        )
+
+        # Average last year
+        last_year = {}
+        for month in list(sorted(category_expenses.keys()))[-12:]:
+            last_year[month] = category_expenses[month]
+
+        last_year_avg = get_metric_average(last_year)
+        self.fig.add_hline(
+            y=last_year_avg,
+            line_dash="dash",
+            annotation_text=f"Last year average: ({last_year_avg:.2f}€)",
             annotation_position="bottom right",
+            line_color="orange",
         )
 
         # Axis
