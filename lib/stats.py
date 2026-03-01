@@ -1,6 +1,7 @@
 """
 This file takes charge of grouping and sorting all transactions to be plotted
 """
+
 from collections import OrderedDict
 from datetime import datetime
 from typing import Any
@@ -8,31 +9,25 @@ from typing import Any
 from lib.transaction import Transaction
 
 
-def _get_min_date(transactions: list[Transaction]) -> datetime | None:
+def _get_min_date(transactions: list[Transaction]) -> datetime:
     """
     Return the date of the oldest transaction
     """
-    min_date: datetime | None = None
+    min_date: datetime = transactions[0].date
     for transaction in transactions:
-        if min_date is None:
+        if min_date > transaction.date:
             min_date = transaction.date
-        else:
-            if min_date > transaction.date:
-                min_date = transaction.date
     return min_date
 
 
-def _get_max_date(transactions: list[Transaction]) -> datetime | None:
+def _get_max_date(transactions: list[Transaction]) -> datetime:
     """
     Return the date of the oldest transaction
     """
-    max_date: datetime | None = None
+    max_date: datetime = transactions[0].date
     for transaction in transactions:
-        if max_date is None:
+        if max_date < transaction.date:
             max_date = transaction.date
-        else:
-            if max_date < transaction.date:
-                max_date = transaction.date
     return max_date
 
 
@@ -80,7 +75,7 @@ def get_transactions_by_month(
     # Set to 0 all months that are not present
     months = get_months(raw_transactions)
     for month in months:
-        if not month in transactions:
+        if month not in transactions:
             transactions[month] = 0
 
     transactions = dict(sorted(transactions.items()))
@@ -176,7 +171,7 @@ def get_categories_by_month(
     months = get_months(transactions)
     for category, cat_expenses in expenses.items():
         for month in months:
-            if not month in cat_expenses:
+            if month not in cat_expenses:
                 cat_expenses[month] = 0
 
     # Sort by total amount spent
@@ -208,7 +203,7 @@ def get_categories_by_month_with_subcategories(
         for category, category_expenses in expenses.items():
             for subcategory, subcategory_expenses in category_expenses.items():
                 for month in months:
-                    if not month in subcategory_expenses:
+                    if month not in subcategory_expenses:
                         expenses[category][subcategory][month] = 0
         return expenses
 
@@ -241,16 +236,16 @@ def get_categories_by_month_with_subcategories(
         category = transaction.category
         subcategory = transaction.subcategory
 
-        if not category in expenses:
+        if category not in expenses:
             expenses[category] = {}
 
         if not subcategory:
             subcategory = "No subcategory"
 
-        if not subcategory in expenses[category]:
+        if subcategory not in expenses[category]:
             expenses[category][subcategory] = {}
 
-        if not date in expenses[category][subcategory]:
+        if date not in expenses[category][subcategory]:
             expenses[category][subcategory][date] = abs(transaction.value)
         else:
             expenses[category][subcategory][date] = expenses[category][subcategory][
@@ -340,7 +335,7 @@ def get_categories_by_year_with_subcategory(
         if subcategory is None or subcategory == "":
             subcategory = "No subcategory"
 
-        if not subcategory in expenses["categories"][category]["subcategories"]:
+        if subcategory not in expenses["categories"][category]["subcategories"]:
             expenses["categories"][category]["subcategories"][subcategory] = {}
             expenses["categories"][category]["subcategories"][subcategory][
                 "sum"
@@ -353,8 +348,7 @@ def get_categories_by_year_with_subcategory(
             )
 
         if (
-            not date
-            in expenses["categories"][category]["subcategories"][subcategory]["year"]
+            date not in expenses["categories"][category]["subcategories"][subcategory]["year"]
         ):
             expenses["categories"][category]["subcategories"][subcategory]["year"][
                 date
@@ -425,7 +419,7 @@ def get_categories_average_in_year_with_subcategories(transactions):
     for category, cat_expenses in year_expenses.items():
         avg_expenses[category] = {"year": {}, "subcategories": {}}  # Initialize
 
-        if not "year" in cat_expenses:
+        if "year" not in cat_expenses:
             cat_expenses["year"] = {}
 
         for year in years:

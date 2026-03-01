@@ -113,7 +113,7 @@ class IncomeExpenses(GraphTemplate):
                 x=list(expenses.keys()),
                 y=expenses_trend,
                 marker_color="red",
-                opacity=0.3,
+                opacity=0.6,
             ),
         )
 
@@ -136,7 +136,7 @@ class IncomeExpenses(GraphTemplate):
                 x=list(income.keys()),
                 y=income_trend,
                 marker_color="green",
-                opacity=0.3,
+                opacity=0.6,
             ),
         )
 
@@ -248,7 +248,7 @@ class RelativeBalance(GraphTemplate):
 
         # Mark last year saving
         last_year = {}
-        for month in list(sorted(balance.keys()))[-12:]:
+        for month in sorted(balance.keys())[-12:]:
             last_year[month] = balance[month]
         balance_last_year_avg = get_metric_average(last_year)
         print(last_year)
@@ -324,7 +324,6 @@ class CategoriesMonthBars(GraphTemplate):
         This graph does not distinguish between subcategories.
         """
         expenses = get_categories_by_month(self.transactions, "EXPENSE")
-
         for category, category_expenses in expenses.items():
             self.fig.add_trace(
                 go.Bar(
@@ -380,7 +379,7 @@ class CategoryDetail(GraphTemplate):
         self,
         transactions,
         category: str,
-        subcategories: dict[str : dict[str : int | float]],
+        subcategories: dict[str, dict[str, int | float]],
     ):
         super().__init__(transactions=transactions)
         self.subcategories = subcategories
@@ -416,7 +415,7 @@ class CategoryDetail(GraphTemplate):
 
         # Average last year
         last_year = {}
-        for month in list(sorted(category_expenses.keys()))[-12:]:
+        for month in sorted(category_expenses.keys())[-12:]:
             last_year[month] = category_expenses[month]
 
         last_year_avg = get_metric_average(last_year)
@@ -441,7 +440,7 @@ class CategoryYearAvg(GraphTemplate):
         self,
         transactions,
         category: str,
-        subcategories: dict[str : dict[str : int | float]],
+        subcategories: dict[str, dict[str, dict[str, int | float]]],
     ):
         super().__init__(transactions=transactions)
         self.subcategories = subcategories
